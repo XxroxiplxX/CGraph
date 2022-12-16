@@ -12,21 +12,31 @@ namespace GraphLib {
     class Vertex;
 
 
-    template <class T>
+    template <class T, class L>
     class Edge {
     public:
         Edge(){}
-        Edge(Vertex<T>* u, Vertex<T>* v, T label);
-
+        Edge(Vertex<T>* u, Vertex<T>* v, L label);
+        bool operator<(const Edge<T,L>& edge);
+        bool operator>(const Edge<T,L>& edge);
         Vertex<T>* u;
         Vertex<T>* v;
-    protected:
-        T label;
+        L label;
     };
 
-    template<class T>
-    Edge<T>::Edge(Vertex<T> *u, Vertex<T> *v, T label) : u(u), v(v), label(label){
+    template<class T, class L>
+    Edge<T,L>::Edge(Vertex<T> *u, Vertex<T> *v, L label) : u(u), v(v), label(label){
 
+    }
+
+    template<class T, class L>
+    bool Edge<T,L>::operator<(const Edge<T,L> &edge) {
+        return this->label < edge.label;
+    }
+
+    template<class T, class L>
+    bool Edge<T, L>::operator>(const Edge<T, L> &edge) {
+        return this->label > edge.label;
     }
 }
 

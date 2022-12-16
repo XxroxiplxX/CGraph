@@ -4,39 +4,54 @@
 
 #ifndef CGRAPH_GRAPH_H
 #define CGRAPH_GRAPH_H
-
-
+#include "set"
+#include "iostream"
 #include <vector>
 #include "Vertex.h"
 #include "Edge.h"
 #include "fstream"
+#include "StaticMap.h"
 namespace GraphLib {
-    template <class T>
+    /*
+     * ******************************************
+     * *       Vertices labels are unique       *
+     * *   all labels have overloaded order     *
+     * *             operators                  *
+     * *                                        *
+     * ******************************************
+     */
+
+    template <class T, class L>
     class Graph {
         std::vector<Vertex<T>> vertices;
-        std::vector<Edge<T>> edges;
+        std::vector<Edge<T,L>> edges;
 
     public:
         Vertex<T>* get_vertex(T label);
+        Edge<T,L>* get_edge(T u_label, T v_label);
         Graph() {}
+        Graph(const Graph<T,L>& graph);
+        Graph(const std::vector<Vertex<T>> vertices);
+        ~Graph(){};
         int distance(Vertex<T> u, Vertex<T> v);
         void add_vertex(Vertex<T> v);
         void add_vertex(T t);
-        void add_edge(Vertex<T>* u, Vertex<T>* v, T label);
-        void add_edge(T ut, T vt, T label);
-        std::vector<Vertex<T>*> get_neighbours(Vertex<T> u);
+        void add_edge(Vertex<T>* u, Vertex<T>* v, L label);
+        void add_edge(T ut, T vt, L label);
+        std::vector<Vertex<T>*>* get_neighbours(Vertex<T> u);
         int min_degree();
         int max_degree();
         std::vector<Vertex<T>>get_vertices();
-        std::vector<Edge<T>>get_edges();
+        std::vector<Edge<T,L>>get_edges();
         int eccentricity(Vertex<T>* u);
         int diameter();
         int radius();
+        Graph<T,L> minimal_spanning_tree_Prim(T root_label);
         void save_to_csv(std::string path);
     };
 
-    template<class T>
-    int Graph<T>::min_degree() {
+    template<class T, class L>
+    int Graph<T,L>::min_degree() {
         int min = vertices[0].degree();
         for (auto it : vertices) {
             if (it.degree() < min) {
@@ -46,44 +61,40 @@ namespace GraphLib {
         return min;
     }
 
-    template<class T>
-    std::vector<Vertex<T>> Graph<T>::get_vertices() {
+    template<class T, class L>
+    std::vector<Vertex<T>> Graph<T,L>::get_vertices() {
         return vertices;
     }
 
-    template<class T>
-    void Graph<T>::add_vertex(Vertex<T> v) {
+    template<class T, class L>
+    void Graph<T,L>::add_vertex(Vertex<T> v) {
         vertices.push_back(v);
     }
 
-    template<class T>
-    void Graph<T>::add_edge(Vertex<T>* u, Vertex<T>* v, T label) {
-        edges.push_back(Edge<T>(u,v,label));
-        for (Vertex<T> n : &(u->get_neighbours())) {
-            n.get_neighbours().push_back(u);
-        }
-        for (Vertex<T> n : &(v->get_neighbours())) {
-            n.get_neighbours().push_back(v);
-        }
+    template<class T, class L>
+    void Graph<T,L>::add_edge(Vertex<T>* u, Vertex<T>* v, L label) {
+        edges.push_back(Edge<T,L>(u,v,label));
+        u->get_neighbours()->push_back(v);
+        v->get_neighbours()->push_back(u);
     }
 
-    template<class T>
-    std::vector<Edge<T>> Graph<T>::get_edges() {
+    template<class T, class L>
+    std::vector<Edge<T,L>> Graph<T,L>::get_edges() {
         return edges;
     }
 
-    template<class T>
-    void Graph<T>::add_vertex(T t) {
+    template<class T, class L>
+    void Graph<T,L>::add_vertex(T t) {
         vertices.push_back(Vertex<T>(t));
     }
 
-    template<class T>
-    std::vector<Vertex<T> *> Graph<T>::get_neighbours(Vertex<T> u) {
+    template<class T, class L>
+    std::vector<Vertex<T> *>* Graph<T,L>::get_neighbours(Vertex<T> u) {
         return u.get_neighbours();
     }
 
-    template<class T>
-    int Graph<T>::max_degree() {
+    template<class T, class L>
+    int Graph<T,L>::max_degree() {
         int max = vertices[0].degree();
         for (auto it : vertices) {
             if (it.degree() > max) {
@@ -93,12 +104,12 @@ namespace GraphLib {
         return max;
     }
 
-    template<class T>int Graph<T>::distance(Vertex<T> u, Vertex<T> v) {
+    template<class T, class L>int Graph<T,L>::distance(Vertex<T> u, Vertex<T> v) {
         return u.dist(v, 0);
     }
 
-    template<class T>
-    int Graph<T>::eccentricity(Vertex<T> *u) {
+    template<class T, class L>
+    int Graph<T,L>::eccentricity(Vertex<T> *u) {
         int max_dist = 0;
         int tmp;
         for (auto v : vertices) {
@@ -110,8 +121,8 @@ namespace GraphLib {
         return max_dist;
     }
 
-    template<class T>
-    int Graph<T>::diameter() {
+    template<class T, class L>
+    int Graph<T,L>::diameter() {
         int max = 0;
         int tmp;
         for (auto vertex : vertices) {
@@ -123,8 +134,8 @@ namespace GraphLib {
         return max;
     }
 
-    template<class T>
-    int Graph<T>::radius() {
+    template<class T, class L>
+    int Graph<T,L>::radius() {
         int min = vertices[0];
         int tmp;
         for (auto vertex : vertices) {
@@ -136,24 +147,20 @@ namespace GraphLib {
         return min;
     }
 
-    template<class T>
-    void Graph<T>::add_edge(T ut, T vt, T label) {
+    template<class T, class L>
+    void Graph<T,L>::add_edge(T ut, T vt, L label) {
         auto u = get_vertex(ut);
         auto v = get_vertex(vt);
         if (!(u and v)) {
             return;
         }
-        edges.push_back(Edge<T>(u,v, label));
-        for (auto n : (u->get_neighbours())) {
-            n->get_neighbours().push_back(u);
-        }
-        for (auto n : (v->get_neighbours())) {
-            n->get_neighbours().push_back(v);
-        }
+        edges.push_back(Edge<T,L>(u,v, label));
+        u->get_neighbours()->push_back(v);
+        v->get_neighbours()->push_back(u);
     }
 
-    template<class T>
-    void Graph<T>::save_to_csv(std::string path) {
+    template<class T, class L>
+    void Graph<T,L>::save_to_csv(std::string path) {
         std::ofstream outdata_v;
         std::ofstream outdata_e;
         outdata_v.open(path + "/graph_v.csv");
@@ -170,13 +177,78 @@ namespace GraphLib {
         outdata_e.close();
     }
 
-    template<class T>
-    Vertex<T>* Graph<T>::get_vertex(T l) {
+    template<class T, class L>
+    Vertex<T>* Graph<T,L>::get_vertex(T l) {
         Vertex<T>* ptr = nullptr;
         for (int i = 0; i < vertices.size(); i++) {
             if (vertices[i].label == l) {
                 ptr = &vertices[i];
                 return ptr;
+            }
+        }
+        return nullptr;
+    }
+
+    template<class T, class L>
+    Graph<T,L>::Graph(const Graph<T,L>& graph) {
+        for (auto it : graph.vertices) {
+            vertices.push_back(it);
+        }
+        for (auto it : graph.edges) {
+            edges.push_back(it);
+        }
+    }
+
+/*
+ * **************************************************
+ * *                w : E -> N                      *
+ * *                x : V -> N                      *
+ * **************************************************
+ */
+    template<class T, class L>
+    Graph<T,L> Graph<T,L>::minimal_spanning_tree_Prim(T root_label) {
+        StaticMap<int, Vertex<T>*> keys;
+        auto A = Graph<T,L>(vertices);
+        Vertex<T>* root;
+        std::set<Vertex<T>*> Q;
+        for (int i = 0; i < vertices.size(); i++) {
+            Q.insert(&vertices[i]);
+            auto ptr = &vertices[i];
+            if (ptr->label == root_label) {
+                root = ptr;
+                keys.map.push_back(Pair<int, Vertex<T> *>(0, root));
+            } else {
+                keys.map.push_back(Pair<int, Vertex<T> *>(10000, ptr));
+            }
+        }
+        while (!Q.empty()) {
+            auto u = Q.begin();
+            auto ptr_to_u_neig = *(Q.begin());
+            for (int i = 0; i < ptr_to_u_neig->neighbours.size(); i++) {
+                auto v = ptr_to_u_neig->neighbours[i];
+                T tmp_edge_label = this->get_edge(v->label, ptr_to_u_neig->label)->label;
+                if (Q.count(v) and (tmp_edge_label < keys.get_elem(v))) {
+                    A.add_edge(v,ptr_to_u_neig, tmp_edge_label);
+                    keys.change_elem(v, tmp_edge_label);
+                }
+            }
+            Q.erase(u);
+        }
+        return A;
+    }
+
+    template<class T, class L>
+    Graph<T,L>::Graph(const std::vector<Vertex<T>> vertices) {
+        for (auto vert : vertices) {
+            this->vertices.push_back(vert);
+        }
+    }
+
+    template<class T, class L>
+    Edge<T,L> *Graph<T,L>::get_edge(T u_label, T v_label) {
+        for (int i = 0; i < edges.size(); i++) {
+            if ((edges[i].v->label == v_label and edges[i].u->label == u_label) or (edges[i].v->label == u_label and edges[i].u->label == v_label)) {
+                return &edges[i];
             }
         }
         return nullptr;

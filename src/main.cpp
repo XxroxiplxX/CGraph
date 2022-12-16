@@ -1,10 +1,11 @@
-#include <iostream>
+
 #include "Graph.h"
-#include "Vertex.h"
-#include "Edge.h"
 using namespace GraphLib;
+
+
+
 int main() {
-    auto G = Graph<int>();
+    auto G = Graph<int,int>();
     for (int i = 0; i < 6; i++) {
         G.add_vertex(i);
     }

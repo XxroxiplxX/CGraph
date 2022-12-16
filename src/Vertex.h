@@ -9,20 +9,19 @@
 #include "map"
 #include "algorithm"
 namespace GraphLib {
-    //template <class T>
-    //class Edge;
-
 
     template <class T>
     class Vertex {
-        std::vector<Vertex<T>*> neighbours;
+
     public:
+        std::vector<Vertex<T>*> neighbours;
         Vertex(){}
         Vertex(T l);
 
         T label;
-        std::vector<Vertex<T>*> get_neighbours();
-
+        std::vector<Vertex<T>*>* get_neighbours();
+        bool operator<(const Vertex<T>& vertex);
+        bool operator>(const Vertex<T>& vertex);
         int eccentricity();
         bool isIncidental(Vertex<T>* v);
         int dist(Vertex<T> v, int acc);
@@ -48,8 +47,8 @@ namespace GraphLib {
     }
 
     template<class T>
-    std::vector<Vertex<T> *> Vertex<T>::get_neighbours() {
-        return neighbours;
+    std::vector<Vertex<T> *>* Vertex<T>::get_neighbours() {
+        return &neighbours;
     }
 
     template<class T>
@@ -66,6 +65,16 @@ namespace GraphLib {
                 return dist(neighbour, acc+1);
             }
         }
+    }
+
+    template<class T>
+    bool Vertex<T>::operator<(const Vertex<T> &vertex) {
+        return this->label < vertex.label;
+    }
+
+    template<class T>
+    bool Vertex<T>::operator>(const Vertex<T> &vertex) {
+        return this->label < vertex.label;
     }
 
 
