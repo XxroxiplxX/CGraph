@@ -23,10 +23,11 @@ namespace GraphLib {
 
     template <class T, class L>
     class Graph {
-        std::vector<Vertex<T>> vertices;
-        std::vector<Edge<T,L>> edges;
+
 
     public:
+        std::vector<Vertex<T>> vertices;
+        std::vector<Edge<T,L>> edges;
         Vertex<T>* get_vertex(T label);
         Edge<T,L>* get_edge(T u_label, T v_label);
         Graph() {}
@@ -37,6 +38,7 @@ namespace GraphLib {
         void add_vertex(Vertex<T> v);
         void add_vertex(T t);
         void add_edge(Vertex<T>* u, Vertex<T>* v, L label);
+        void add_edge(Vertex<T>* u, Vertex<T>* v);
         void add_edge(T ut, T vt, L label);
         std::vector<Vertex<T>*>* get_neighbours(Vertex<T> u);
         int min_degree();
@@ -252,6 +254,14 @@ namespace GraphLib {
             }
         }
         return nullptr;
+    }
+
+    template<class T, class L>
+    void Graph<T, L>::add_edge(Vertex<T> *u, Vertex<T> *v) {
+        edges.push_back(Edge<T,L>(u,v));
+        u->get_neighbours()->push_back(v);
+        v->get_neighbours()->push_back(u);
+        //std::cout << "[]added edge between " << v->label << " and " << u->label << std::endl;
     }
 
 }

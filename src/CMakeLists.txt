@@ -6,5 +6,5 @@ set(SOURCES ${SOURCES})
 
 add_executable(${BINARY}_run ${SOURCES})
 
-add_library(${BINARY}_lib STATIC ${SOURCES} Graph.h Edge.h Vertex.h StaticMap.h StaticMap.h CompleteGraph.h)
+add_library(${BINARY}_lib STATIC ${SOURCES} Graph.h Edge.h Vertex.h StaticMap.h StaticMap.h CompleteGraph.h CycleGraph.h)
 

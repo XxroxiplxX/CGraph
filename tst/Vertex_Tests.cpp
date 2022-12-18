@@ -67,8 +67,18 @@ namespace GraphLib {
         G.add_edge(0,5,122);
         G.add_edge(1,3,21);
         G.add_edge(1,4,2);
-        G.save_to_csv("/tmp/graphs");
+        //G.save_to_csv("/tmp/graphs");
         EXPECT_EQ(G.get_vertices()[2].get_neighbours()->size(), 3);
+        CompleteGraph<int,int> c;
+        c.add_vertex(1);
+        c.add_vertex(2);
+        c.add_vertex(3);
+        c.add_vertex(4);
+        c.add_vertex(5);
+        c.add_vertex(6);
+        EXPECT_EQ(c.edges.size(), 15);
+        //c.add_vertex(7);
+        c.save_to_csv("/tmp/graphs");
 
     }
 

@@ -31,6 +31,7 @@ Type StaticMap<Type, Key>::get_elem(Key key) {
             return map[i].element;
         }
     }
+    return Type(0);
 }
 
 template<class Type, class Key>

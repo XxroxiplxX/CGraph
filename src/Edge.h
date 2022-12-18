@@ -16,6 +16,7 @@ namespace GraphLib {
     class Edge {
     public:
         Edge(){}
+        Edge(Vertex<T>* u, Vertex<T>* v);
         Edge(Vertex<T>* u, Vertex<T>* v, L label);
         bool operator<(const Edge<T,L>& edge);
         bool operator>(const Edge<T,L>& edge);
@@ -37,6 +38,11 @@ namespace GraphLib {
     template<class T, class L>
     bool Edge<T, L>::operator>(const Edge<T, L> &edge) {
         return this->label > edge.label;
+    }
+
+    template<class T, class L>
+    Edge<T, L>::Edge(Vertex<T> *u, Vertex<T> *v) : u(u), v(v){
+
     }
 }
 
